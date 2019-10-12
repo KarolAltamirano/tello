@@ -9,10 +9,12 @@ import (
 )
 
 // Init drone
-func Init(joystick *joystick.State) {
+func Init(stick *joystick.State) {
 	drone := tello.NewDriver("8888")
 
 	work := func() {
+		var previousStickState joystick.State
+
 		drone.On(tello.TakeoffEvent, func(data interface{}) {
 			fmt.Println("### TakeOff Successful ###")
 		})
@@ -23,39 +25,69 @@ func Init(joystick *joystick.State) {
 
 		for {
 			// roll
-			if joystick.Axis.Roll < 0 {
-				drone.Left(joystick.Axis.Roll * -1)
-			} else {
-				drone.Right(joystick.Axis.Roll)
+			if stick.Axis.Roll != previousStickState.Axis.Roll {
+				if stick.Axis.Roll < 0 {
+					fmt.Printf("Left: %v\n", stick.Axis.Roll*-1)
+					drone.Left(stick.Axis.Roll * -1)
+				} else {
+					fmt.Printf("Right: %v\n", stick.Axis.Roll)
+					drone.Right(stick.Axis.Roll)
+				}
 			}
 
 			// pitch
-			if joystick.Axis.Pitch < 0 {
-				drone.Forward(joystick.Axis.Pitch * -1)
-			} else {
-				drone.Backward(joystick.Axis.Pitch)
+			if stick.Axis.Pitch != previousStickState.Axis.Pitch {
+				if stick.Axis.Pitch < 0 {
+					fmt.Printf("Forward: %v\n", stick.Axis.Pitch*-1)
+					drone.Forward(stick.Axis.Pitch * -1)
+				} else {
+					fmt.Printf("Backward: %v\n", stick.Axis.Pitch)
+					drone.Backward(stick.Axis.Pitch)
+				}
 			}
 
 			// yaw
-			if joystick.Axis.Yaw < 0 {
-				drone.Clockwise(joystick.Axis.Yaw * -1)
-			} else {
-				drone.CounterClockwise(joystick.Axis.Yaw)
+			if stick.Axis.Yaw != previousStickState.Axis.Yaw {
+
+				if stick.Axis.Yaw < 0 {
+					fmt.Printf("Clockwise: %v\n", stick.Axis.Yaw*-1)
+					drone.Clockwise(stick.Axis.Yaw * -1)
+				} else {
+					fmt.Printf("CounterClockwise: %v\n", stick.Axis.Yaw)
+					drone.CounterClockwise(stick.Axis.Yaw)
+				}
 			}
 
-			if joystick.Buttons.Button12 {
+			// button 12
+			if stick.Buttons.Button12 && stick.Buttons.Button12 != previousStickState.Buttons.Button12 {
+				fmt.Println("Up: 20")
 				drone.Up(20)
 			}
 
-			if joystick.Buttons.Button11 {
+			if !stick.Buttons.Button12 && stick.Buttons.Button12 != previousStickState.Buttons.Button12 {
+				fmt.Println("Up: 0")
+				drone.Up(0)
+			}
+
+			// button 11
+			if stick.Buttons.Button11 && stick.Buttons.Button11 != previousStickState.Buttons.Button11 {
+				fmt.Println("Down: 20")
 				drone.Down(20)
 			}
 
-			if joystick.Buttons.Button10 {
+			if !stick.Buttons.Button11 && stick.Buttons.Button11 != previousStickState.Buttons.Button11 {
+				fmt.Println("Down: 0")
+				drone.Down(0)
+			}
+
+			// button 10
+			if stick.Buttons.Button10 && stick.Buttons.Button10 != previousStickState.Buttons.Button10 {
+				fmt.Println("Hover")
 				drone.Hover()
 			}
 
-			if joystick.Buttons.Button08 {
+			// button 8
+			if stick.Buttons.Button08 && stick.Buttons.Button08 != previousStickState.Buttons.Button08 {
 				fmt.Println("### TakeOff In Progress ... ###")
 				if err := drone.TakeOff(); err != nil {
 					fmt.Println("### TakeOff Failed ###")
@@ -63,7 +95,8 @@ func Init(joystick *joystick.State) {
 				}
 			}
 
-			if joystick.Buttons.Button07 {
+			// button 7
+			if stick.Buttons.Button07 && stick.Buttons.Button07 != previousStickState.Buttons.Button07 {
 				fmt.Println("### Land In Progress ... ###")
 				if err := drone.Land(); err != nil {
 					fmt.Println("### Land Failed ###")
@@ -71,6 +104,10 @@ func Init(joystick *joystick.State) {
 				}
 			}
 
+			// copy stick status
+			previousStickState = *stick
+
+			// timeout
 			time.Sleep(1 * time.Millisecond)
 		}
 	}

@@ -19,12 +19,12 @@ func Start() {
 		state := args[1].(bool)
 
 		switch buttonID {
-		case joystick.Button08ID:
+		case joystick.Button12ID:
 			if state {
 				fmt.Println("Drone TakeOff")
 				drone.TakeOff()
 			}
-		case joystick.Button07ID:
+		case joystick.Button11ID:
 			if state {
 				fmt.Println("Drone Land")
 				drone.Land()

@@ -37,7 +37,7 @@ func Start() {
 		for {
 			stick.Run()
 			if stick.Ready {
-				drone.SetVector(stick.Pitch, stick.Roll, 0, stick.Yaw)
+				drone.SetVector(stick.Pitch, stick.Roll, stick.Thrust, stick.Yaw)
 			}
 			time.Sleep(20 * time.Millisecond)
 		}

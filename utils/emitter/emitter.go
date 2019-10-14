@@ -5,11 +5,16 @@ type Emitter struct {
 	listeners map[string][]func(...interface{})
 }
 
+// NewEmitter Create New Emitter
+func NewEmitter() Emitter {
+	return Emitter{
+		listeners: make(map[string][]func(...interface{}), 5),
+	}
+}
+
 // On func
 func (e *Emitter) On(event string, listener func(...interface{})) {
-	if events, ok := e.listeners[event]; ok {
-		e.listeners[event] = append(events, listener)
-	}
+	e.listeners[event] = append(e.listeners[event], listener)
 }
 
 // Emit func

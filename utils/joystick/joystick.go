@@ -1,6 +1,7 @@
 package joystick
 
 import (
+	"fmt"
 	"github.com/KarolAltamirano/tello/utils/emitter"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -20,7 +21,14 @@ func Init() *Joystick {
 	if err := sdl.Init(sdl.INIT_JOYSTICK); err != nil {
 		panic(err)
 	}
-	joystick := &Joystick{}
+	joystick := &Joystick{
+		Emitter: emitter.NewEmitter(),
+		Ready:   false,
+		Roll:    0,
+		Pitch:   0,
+		Yaw:     0,
+		Thrust:  0,
+	}
 	return joystick
 }
 
@@ -45,12 +53,15 @@ func (j *Joystick) Run() {
 					j.Yaw = normalizeAxis(y)
 					j.Thrust = normalizeAxis(t)
 					j.Ready = true
+					fmt.Println("Joystick Connected")
+					fmt.Printf("Joystick Axis: %+.4f | %+.4f | %+.4f | %+.4f\n", j.Roll, j.Pitch, j.Yaw, j.Thrust)
 				}
 			}
 		case *sdl.JoyDeviceRemovedEvent:
 			if stick := sdl.JoystickFromInstanceID(event.Which); stick != nil {
 				stick.Close()
 				j.Ready = false
+				fmt.Println("Joystick Removed")
 			}
 		case *sdl.JoyAxisEvent:
 			switch event.Axis {
@@ -63,8 +74,10 @@ func (j *Joystick) Run() {
 			case ThrustID:
 				j.Thrust = normalizeAxis(event.Value)
 			}
+			fmt.Printf("Joystick Axis: %+.4f | %+.4f | %+.4f | %+.4f\n", j.Roll, j.Pitch, j.Yaw, j.Thrust)
 		case *sdl.JoyButtonEvent:
 			j.Emitter.Emit("JoyButtonEvent", event.Button, event.State == 1)
+			fmt.Printf("Joystick Button: %2d | %v\n", event.Button, event.State == 1)
 		}
 	}
 }

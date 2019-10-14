@@ -1,6 +1,7 @@
 package drone
 
 import (
+	"fmt"
 	"github.com/KarolAltamirano/tello/utils/joystick"
 	"gobot.io/x/gobot"
 	"gobot.io/x/gobot/platforms/dji/tello"
@@ -15,19 +16,22 @@ func Start() {
 
 	stick.Emitter.On("JoyButtonEvent", func(args ...interface{}) {
 		buttonID := args[0].(uint8)
-		state := args[0].(bool)
+		state := args[1].(bool)
 
 		switch buttonID {
 		case joystick.Button08ID:
 			if state {
+				fmt.Println("Drone TakeOff")
 				drone.TakeOff()
 			}
 		case joystick.Button07ID:
 			if state {
+				fmt.Println("Drone Land")
 				drone.Land()
 			}
 		case joystick.Button10ID:
 			if state {
+				fmt.Println("Drone Hover")
 				drone.Hover()
 			}
 		}

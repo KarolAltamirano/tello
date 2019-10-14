@@ -34,20 +34,23 @@ func (j *Joystick) Run() {
 	for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
 		switch event := e.(type) {
 		case *sdl.JoyDeviceAddedEvent:
-			if stick := sdl.JoystickOpen(event.Which); stick != nil {
-				r, _ := stick.AxisInitialState(RollID)
-				p, _ := stick.AxisInitialState(PitchID)
-				y, _ := stick.AxisInitialState(YawID)
-				t, _ := stick.AxisInitialState(ThrustID)
-				j.Roll = normalizeAxis(r)
-				j.Pitch = normalizeAxis(p)
-				j.Yaw = normalizeAxis(y)
-				j.Thrust = normalizeAxis(t)
-				j.Ready = true
+			if !j.Ready {
+				if stick := sdl.JoystickOpen(event.Which); stick != nil {
+					r, _ := stick.AxisInitialState(RollID)
+					p, _ := stick.AxisInitialState(PitchID)
+					y, _ := stick.AxisInitialState(YawID)
+					t, _ := stick.AxisInitialState(ThrustID)
+					j.Roll = normalizeAxis(r)
+					j.Pitch = normalizeAxis(p)
+					j.Yaw = normalizeAxis(y)
+					j.Thrust = normalizeAxis(t)
+					j.Ready = true
+				}
 			}
 		case *sdl.JoyDeviceRemovedEvent:
 			if stick := sdl.JoystickFromInstanceID(event.Which); stick != nil {
 				stick.Close()
+				j.Ready = false
 			}
 		case *sdl.JoyAxisEvent:
 			switch event.Axis {

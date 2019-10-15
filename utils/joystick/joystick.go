@@ -77,7 +77,7 @@ func (j *Joystick) Run() {
 			fmt.Printf("Joystick Axis: %+.4f | %+.4f | %+.4f | %+.4f\n", j.Roll, j.Pitch, j.Yaw, j.Thrust)
 		case *sdl.JoyButtonEvent:
 			j.Emitter.Emit("JoyButtonEvent", event.Button, event.State == 1)
-			fmt.Printf("Joystick Button: %2d | %v\n", event.Button, event.State == 1)
+			fmt.Printf("Joystick Button: %2d | %v\n", event.Button, event.State)
 		}
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/KarolAltamirano/tello/utils/joystick"
 	// "gobot.io/x/gobot"
 	// "gobot.io/x/gobot/platforms/dji/tello"
-	"github.com/SMerrony/tello"
+	"github.com/KarolAltamirano/tello/utils/tello"
 	"time"
 )
 
@@ -19,7 +19,9 @@ func Start() {
 		return
 	}
 
-	drone.SetSportsMode(true)
+	drone.SetFastMode()
+
+	defer drone.ControlDisconnect()
 
 	work := func() {
 		// var flightData *tello.FlightData
@@ -71,13 +73,13 @@ func Start() {
 			if stick.Ready {
 				// drone.SetVector(stick.Pitch*-1, stick.Roll, stick.Thrust*-1, stick.Yaw)
 				drone.UpdateSticks(tello.StickMessage{
-					Rx: int16(32767 * (stick.Pitch * -1)),
-					Ry: int16(32767 * (stick.Roll)),
-					Lx: int16(32767 * (stick.Thrust * -1)),
-					Ly: int16(32767 * (stick.Yaw)),
+					Rx: int16(32767 * (stick.Roll)),
+					Ry: int16(32767 * (stick.Pitch * -1)),
+					Lx: int16(32767 * (stick.Yaw)),
+					Ly: int16(32767 * (stick.Thrust * -1)),
 				})
 			}
-			time.Sleep(20 * time.Millisecond)
+			time.Sleep(1 * time.Millisecond)
 		}
 	}
 
